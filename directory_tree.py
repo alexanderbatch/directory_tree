@@ -13,7 +13,7 @@ class DirectoryTree:
     Class to generate visual directory tree starting from specified root path.
     """
     def __init__(self, root_path, output_file=None, follow_symlinks=False,
-                 safe_mode=True):
+                 safe_mode=True, ignore_list=None):
         """
         Initialize DirectoryTree object with root path and configuration.
 
@@ -22,11 +22,13 @@ class DirectoryTree:
             output_file (str, optional): Path to file where tree will be written.
             follow_symlinks (bool, optional): Whether to follow symbolic links.
             safe_mode (bool, optional): If True, restricts following symbolic links.
+            ignore_list (list, optional): List of file/directory names to ignore.
         """
         self.root_path = os.path.abspath(root_path)
         self.output_file = output_file
         self.follow_symlinks = follow_symlinks # shortcuts
         self.safe_mode = safe_mode
+        self.ignore_list = ignore_list or []
         self.visited = set()
         self.safe_root = os.path.realpath(self.root_path)
 
@@ -92,6 +94,10 @@ class DirectoryTree:
             else:
                 indent += '├── '
         output.write(f"{indent}{os.path.basename(root)}/\n")
+        if os.path.basename(root) in self.ignore_list:
+            output.write(f"{indent}|   ...\n")
+            dirs[:] = []  # Clear dirs list to prevent walking into them
+            return  # Skip processing children
         self.process_files(files, level, output)
         # Only add vertical bar if there are subdirectories or files
         if dirs:
@@ -109,7 +115,8 @@ class DirectoryTree:
         """
         subindent = '|   ' * level
         for f in files:
-            output.write(f"{subindent}|   {f}\n")
+            if f not in self.ignore_list:
+                output.write(f"{subindent}|   {f}\n")
         # Do not add extra vertical bar after last file
         if not files and not dir:
             subindent = '|   ' * level
@@ -126,6 +133,8 @@ def parse_args():
         description="Generate a directory tree")
     parser.add_argument('root_path', type=str, help="Directory path to list")
     parser.add_argument('-o', '--output_file', type=str, help="Output to file")
+    parser.add_argument('-i', '--ignore_list', nargs='*', default=[],
+                        help="List of directories or files to ignore")
     parser.add_argument('-l', '--follow_symlinks', action='store_true',
                         help="Follow symbolic links") # aka shortcuts
     parser.add_argument('-s', '--safe_mode', action='store_true',
@@ -142,8 +151,11 @@ def main():
     else: # hardcode in file directions
         root_path = os.path.dirname(__file__)
         output_file = os.path.join(root_path, 'directory_tree_output.txt')
+        ignore_list = ['venv','.git', '.gitignore','.DS_Store','.vscode'] # example
+
         tree = DirectoryTree(root_path, output_file=output_file,
-                             follow_symlinks=False, safe_mode=True)
+                             follow_symlinks=False, safe_mode=True,
+                             ignore_list=ignore_list)
         
     tree.generate_tree()
 

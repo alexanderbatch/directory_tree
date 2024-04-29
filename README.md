@@ -9,6 +9,7 @@ directories in a project and includes configurable options for handling symbolic
 ## Features
 - Generate a directory tree for any specified directory.
 - Output the directory tree to the console or to a file.
+- Ability to ignore specific files or directories in the generated directory tree.
 - Optional following of symbolic links (shortcuts).
 - Safe mode to restrict following symbolic links (shortcuts) to prevent loops.
 
@@ -69,6 +70,7 @@ Place the `directory_tree.py` file in any directory you wish. Open a command lin
 
 ### Optional Arguments
 - `-o` or `--output_file`: Specify a file to write the output to.
+- `-i` or `--ignore_list`: Specify a list of directories or files to ignore in the output.
 - `-l` or `--follow_symlinks`: Enable following symbolic links.
 - `-s` or `--safe_mode`: Enable safe mode to restrict following symbolic links.
 
@@ -77,14 +79,13 @@ Example command with all options:
 python directory_tree.py "C:\path\to\directory" -o "C:\path\to\output.txt" -l -s
 ```
 Replace `"C:\path\to\directory"` with the path to the directory you want to visualize 
-and `"C:\path\to\output.txt"` with the path where you want the output file to be saved. 
-The `-l` option enables following symbolic links (shortcuts), 
+and `"C:\path\to\output.txt"` with the path where you want the output file to be saved.
+The `-i` option allows you to specify directories or files to ignore,
+and `-l` option enables following symbolic links (shortcuts), 
 and `-s` enables safe mode to restrict following symbolic links to prevent loops.
 
 ## TODO List
 
-- **Ignore Files or Paths**: Implement functionality to exclude specific files or 
-  directories from the generated directory tree.
 - **Improve Format Output**: Enhance the visual formatting of the output to increase 
   readability and include more detailed information about each file and directory.
 - **Additional Information**: Add options to include additional information such as 
